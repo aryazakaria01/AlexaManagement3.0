@@ -35,15 +35,11 @@ rssdb = db.rss
 
 
 def obj_to_str(obj):
-    if not obj:
-        return False
-    string = codecs.encode(pickle.dumps(obj), "base64").decode()
-    return string
+    return codecs.encode(pickle.dumps(obj), "base64").decode() if obj else False
 
 
 def str_to_obj(string: str):
-    obj = pickle.loads(codecs.decode(string.encode(), "base64"))
-    return obj
+    return pickle.loads(codecs.decode(string.encode(), "base64"))
 
 
 async def get_notes_count() -> dict:
@@ -170,11 +166,8 @@ async def delete_filter(chat_id: int, name: str) -> bool:
 
 async def int_to_alpha(user_id: int) -> str:
     alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-    text = ""
     user_id = str(user_id)
-    for i in user_id:
-        text += alphabet[int(i)]
-    return text
+    return "".join(alphabet[int(i)] for i in user_id)
 
 
 async def alpha_to_int(user_id_alphabet: str) -> int:
@@ -316,8 +309,7 @@ async def is_nsfw_on(chat_id: int) -> bool:
     return False
 
 async def nsfw_on(chat_id: int):
-    is_nsfw = is_nsfw_on(chat_id)
-    if is_nsfw:
+    if is_nsfw := is_nsfw_on(chat_id):
         return
     return nsfwdb.delete_one({"chat_id": chat_id})
 
@@ -759,16 +751,14 @@ async def get_rss_feeds() -> list:
     feeds = await feeds.to_list(length=10000000)
     if not feeds:
         return
-    data = []
-    for feed in feeds:
-        data.append(
-            dict(
-                chat_id=feed["chat_id"],
-                url=feed["url"],
-                last_title=feed["last_title"],
-            )
+    return [
+        dict(
+            chat_id=feed["chat_id"],
+            url=feed["url"],
+            last_title=feed["last_title"],
         )
-    return data
+        for feed in feeds
+    ]
 
 
 async def get_rss_feeds_count() -> int:
