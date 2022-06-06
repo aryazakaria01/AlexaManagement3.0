@@ -73,11 +73,9 @@ def list_nsfw_chats(update: Update, context: CallbackContext):
     for chat in chats:
         try:
             x = context.bot.get_chat(int(*chat))
-            name = x.title if x.title else x.first_name
+            name = x.title or x.first_name
             text += f"• <code>{name}</code>\n"
-        except BadRequest:
-            sql.rem_nsfw(*chat)
-        except Unauthorized:
+        except (BadRequest, Unauthorized):
             sql.rem_nsfw(*chat)
         except RetryAfter as e:
             sleep(e.retry_after)
@@ -99,7 +97,7 @@ def wallpaper(update, context):
 @run_async
 def ngif(update, context):
     chat_id = update.effective_chat.id
-    if not update.effective_message.chat.type == "private":
+    if update.effective_message.chat.type != "private":
         is_nsfw = sql.is_nsfw(chat_id)
         if not is_nsfw:
             return
@@ -116,7 +114,7 @@ def feed(update, context):
 @run_async
 def kemonomimi(update, context):
     chat_id = update.effective_chat.id
-    if not update.effective_message.chat.type == "private":
+    if update.effective_message.chat.type != "private":
         is_nsfw = sql.is_nsfw(chat_id)
         if not is_nsfw:
             return
@@ -127,7 +125,7 @@ def kemonomimi(update, context):
 @run_async
 def gasm(update, context):
     chat_id = update.effective_chat.id
-    if not update.effective_message.chat.type == "private":
+    if update.effective_message.chat.type != "private":
         is_nsfw = sql.is_nsfw(chat_id)
         if not is_nsfw:
             return

@@ -45,17 +45,17 @@ opener.addheaders = [("User-agent", useragent)]
 async def _(event):
     if event.fwd_from:
         return
-    
+
     webevent = await event.reply("searching........")
     match = event.pattern_match.group(1)
     page = re.findall(r"page=\d+", match)
     try:
         page = page[0]
         page = page.replace("page=", "")
-        match = match.replace("page=" + page[0], "")
+        match = match.replace(f"page={page[0]}", "")
     except IndexError:
         page = 1
-    search_args = (str(match), int(page))
+    search_args = str(match), page
     gsearch = GoogleSearch()
     gresults = await gsearch.async_search(*search_args)
     msg = ""
@@ -75,7 +75,7 @@ async def _(event):
 async def img_sampler(event):
     if event.fwd_from:
         return
-    
+
     query = event.pattern_match.group(1)
     jit = f'"{query}"'
     downloader.download(
@@ -106,7 +106,7 @@ async def okgoogle(img):
     """ For .reverse command, Google search images and stickers. """
     if os.path.isfile("okgoogle.png"):
         os.remove("okgoogle.png")
-    
+
     message = await img.get_reply_message()
     if message and message.media:
         photo = io.BytesIO()
@@ -141,7 +141,7 @@ async def okgoogle(img):
             return
 
         os.remove(name)
-        match = await ParseSauce(fetchUrl + "&preferences?hl=en&fg=1#languages")
+        match = await ParseSauce(f"{fetchUrl}&preferences?hl=en&fg=1#languages")
         guess = match["best_guess"]
         imgspage = match["similar_images"]
 
@@ -151,10 +151,7 @@ async def okgoogle(img):
             await dev.edit("`Can't find this piece of shit.`")
             return
 
-        if img.pattern_match.group(1):
-            lim = img.pattern_match.group(1)
-        else:
-            lim = 3
+        lim = img.pattern_match.group(1) or 3
         images = await scam(match, lim)
         yeet = []
         for i in images:
@@ -225,8 +222,9 @@ async def apk(e):
         remove_space = app_name.split(" ")
         final_name = "+".join(remove_space)
         page = requests.get(
-            "https://play.google.com/store/search?q=" + final_name + "&c=apps"
+            f"https://play.google.com/store/search?q={final_name}&c=apps"
         )
+
         lnk = str(page.status_code)
         soup = bs4.BeautifulSoup(page.content, "lxml", from_encoding="utf-8")
         results = soup.findAll("div", "ZmHEEd")
@@ -258,7 +256,7 @@ async def apk(e):
             .img["data-src"]
         )
         app_details = "<a href='" + app_icon + "'>📲&#8203;</a>"
-        app_details += " <b>" + app_name + "</b>"
+        app_details += f" <b>{app_name}</b>"
         app_details += (
             "\n\n<code>Developer :</code> <a href='"
             + app_dev_link
@@ -283,7 +281,7 @@ async def apk(e):
     except IndexError:
         await e.reply("No result found in search. Please enter **Valid app name**")
     except Exception as err:
-        await e.reply("Exception Occured:- " + str(err))
+        await e.reply(f"Exception Occured:- {str(err)}")
 
 
 __mod_name__ = "🎒 ᴛᴏᴏʟs"
